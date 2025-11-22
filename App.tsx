@@ -525,7 +525,7 @@ const App: React.FC = () => {
            </div>
         </section>
       </main>
-      <footer className="py-8 text-center text-slate-400 text-sm"><p>© 2025 Alex Chen. Built with React & Gemini.</p></footer>
+      <footer className="py-8 text-center text-slate-400 text-sm"><p>© 2025 Bono.</p></footer>
       <AIChat />
     </div>
   );
