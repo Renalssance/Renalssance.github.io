@@ -7,8 +7,7 @@ const getClient = (): GoogleGenAI => {
   if (!aiClient) {
     // In a real scenario, handle missing API keys gracefully.
     // For this demo, we assume process.env.API_KEY is injected.
-    const apiKey = process.env.API_KEY || ''; 
-    aiClient = new GoogleGenAI({ apiKey });
+    aiClient = new GoogleGenAI({ apiKey: process.env.API_KEY });
   }
   return aiClient;
 };
@@ -29,8 +28,6 @@ export const generateChatResponse = async (
     // (simple method for stateless generateContent call)
     const conversationContext = history.map(h => `${h.role === 'user' ? 'User' : 'AlexAI'}: ${h.text}`).join('\n');
     const fullPrompt = `
-      ${SYSTEM_INSTRUCTION}
-      
       Recent Conversation:
       ${conversationContext}
       User: ${userMessage}
@@ -41,8 +38,8 @@ export const generateChatResponse = async (
       model: 'gemini-2.5-flash',
       contents: fullPrompt,
       config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.7,
-        maxOutputTokens: 200,
       }
     });
 
