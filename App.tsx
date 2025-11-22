@@ -54,24 +54,24 @@ const SKILLS_DATA: SkillData[] = [
 const PROJECTS: Project[] = [
   {
     id: '1',
-    title: 'Neural Vis',
-    description: 'A real-time browser-based visualization tool for neural network activation layers using WebGL and React.',
+    title: 'Project 1',
+    description: 'Waiting for description.',
     tags: ['React', 'TypeScript', 'WebGL', 'D3.js'],
     github: 'https://github.com',
     imageUrl: 'https://picsum.photos/600/400?random=1'
   },
   {
     id: '2',
-    title: 'Distributed Cache',
-    description: 'A high-performance distributed caching system implemented in Go, featuring consistent hashing and gossip protocol.',
+    title: 'Project 2',
+    description: 'Waiting for description.',
     tags: ['Go', 'Distributed Systems', 'Docker'],
     github: 'https://github.com',
     imageUrl: 'https://picsum.photos/600/400?random=2'
   },
   {
     id: '3',
-    title: 'Auto-Tutor AI',
-    description: 'An LLM-powered application helping undergrads learn Data Structures, utilizing RAG for curriculum alignment.',
+    title: 'Project 3',
+    description: 'Waiting for description.',
     tags: ['Python', 'LangChain', 'Gemini API', 'Next.js'],
     github: 'https://github.com',
     imageUrl: 'https://picsum.photos/600/400?random=3'
@@ -254,7 +254,7 @@ const NavBar: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* 移动端下拉菜单 */}
+      {/* 移动端下拉菜单
       {isOpen && (
         <div className="md:hidden glass-panel border-t border-slate-200 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -265,7 +265,7 @@ const NavBar: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </nav>
   );
 };
