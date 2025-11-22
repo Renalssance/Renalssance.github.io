@@ -33,7 +33,6 @@ interface SkillData {
 const NAV_LINKS = [
   { label: 'Home', href: '#hero' },
   { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
   { label: 'Contact', href: '#contact' },
 ];
@@ -355,7 +354,7 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                <span className="text-[#7d8c8c]">01.</span> About Me
+                About Me
               </h2>
               <div className="space-y-4 text-lg text-slate-600 leading-relaxed">
                 <p>I am a Computer Science graduate student passionate about building scalable distributed systems and intelligent user interfaces.</p>
@@ -380,7 +379,7 @@ const App: React.FC = () => {
         {/* 项目展示部分 */}
         <section id="projects" className="py-24 px-4 bg-slate-50/50 border-y border-slate-200/60">
           <div className="max-w-7xl mx-auto">
-             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3"><span className="text-[#7d8c8c]">02.</span> Selected Works</h2>
+             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3">Selected Works</h2>
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {PROJECTS.map((project) => (
                   <div key={project.id} className="group relative rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50">
@@ -410,7 +409,6 @@ const App: React.FC = () => {
         {/* 联系方式部分 */}
         <section id="contact" className="py-32 px-4 text-center">
            <div className="max-w-2xl mx-auto">
-             <p className="text-[#7d8c8c] font-bold tracking-widest uppercase mb-4">03. What's Next?</p>
              <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">Get In Touch</h2>
              <p className="text-slate-500 mb-10 text-lg leading-relaxed">I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
              <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300"><Mail size={18} /> Say Hello</a>
