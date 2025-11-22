@@ -38,7 +38,7 @@ const NAV_LINKS = [
 ];
 
 // 用户头像 URL
-const AVATAR_URL = "Labubu.JPG";
+const AVATAR_URL = "/Labubu.JPG";
 
 // 技能雷达图数据配置
 const SKILLS_DATA: SkillData[] = [
@@ -254,7 +254,7 @@ const NavBar: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* 移动端下拉菜单
+      {/* 移动端下拉菜单 */}
       {isOpen && (
         <div className="md:hidden glass-panel border-t border-slate-200 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -265,7 +265,7 @@ const NavBar: React.FC = () => {
             ))}
           </div>
         </div>
-      )} */}
+      )}
     </nav>
   );
 };
@@ -280,7 +280,16 @@ const ProfileHero: React.FC = () => {
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full blur opacity-50 group-hover:opacity-75 transition duration-500"></div>
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-inner bg-slate-100">
-              <img src={AVATAR_URL} alt="Profile Avatar" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
+              <img 
+                src={AVATAR_URL} 
+                alt="Profile Avatar" 
+                className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                onError={(e) => {
+                  // 图片加载失败时显示备用头像
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://api.dicebear.com/7.x/avataaars/svg?seed=Bono&backgroundColor=e6e6e6";
+                }}
+              />
             </div>
             <div className="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-green-600" title="Available for work">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
