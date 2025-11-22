@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Github, Linkedin, Mail, ExternalLink, Cpu, Server, Database, 
-  Menu, X, Code, MapPin, GraduationCap, Download, ChevronRight,
-  MessageSquare, Send, Sparkles, User, Bot
+  Menu, X, MapPin, GraduationCap, Download, ChevronRight
 } from 'lucide-react';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, 
   ResponsiveContainer, Tooltip as RechartsTooltip, Radar as RechartsRadar
 } from 'recharts';
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 // --- TYPES ---
+// 定义项目数据结构
 interface Project {
   id: string;
   title: string;
@@ -21,12 +20,8 @@ interface Project {
   imageUrl: string;
 }
 
-interface ChatMessage {
-  role: 'user' | 'model';
-  text: string;
-  timestamp: Date;
-}
 
+// 定义技能数据结构，用于图表展示
 interface SkillData {
   subject: string;
   A: number;
@@ -34,6 +29,7 @@ interface SkillData {
 }
 
 // --- CONSTANTS ---
+// 导航栏链接配置
 const NAV_LINKS = [
   { label: 'Home', href: '#hero' },
   { label: 'About', href: '#about' },
@@ -42,8 +38,10 @@ const NAV_LINKS = [
   { label: 'Contact', href: '#contact' },
 ];
 
-const AVATAR_URL = "https://api.dicebear.com/7.x/avataaars/svg?seed=AlexChen&backgroundColor=e6e6e6";
+// 用户头像 URL
+const AVATAR_URL = "Labubu.JPG";
 
+// 技能雷达图数据配置
 const SKILLS_DATA: SkillData[] = [
   { subject: 'Algorithms', A: 95, fullMark: 100 },
   { subject: 'Frontend', A: 90, fullMark: 100 },
@@ -53,6 +51,7 @@ const SKILLS_DATA: SkillData[] = [
   { subject: 'System Design', A: 75, fullMark: 100 },
 ];
 
+// 项目展示列表数据
 const PROJECTS: Project[] = [
   {
     id: '1',
@@ -80,64 +79,11 @@ const PROJECTS: Project[] = [
   }
 ];
 
-const SYSTEM_INSTRUCTION = `
-You are an AI assistant for a computer science graduate student named Alex.
-Your goal is to answer questions about Alex's background, skills, and projects in a professional, polite, and academic tone.
 
-Here is Alex's Resume Context:
-- **Education:** Master of Science in Computer Science (University of Tech, Current), GPA 3.9/4.0. BS in Computer Engineering.
-- **Core Skills:** React, TypeScript, Python, Go, Distributed Systems, Machine Learning, Docker, Kubernetes.
-- **Experience:** 
-    - Intern at TechCorp (Backend Optimization)
-    - Research Assistant at AI Lab (NLP Focus)
-- **Projects:** Neural Vis (WebGL), Distributed Cache (Go), Auto-Tutor AI (GenAI).
-- **Interests:** Open Source, Photography, minimalistic design.
-
-If asked about contact info, direct them to the contact section or email alex@example.com.
-`;
-
-// --- SERVICES ---
-let aiClient: GoogleGenAI | null = null;
-
-const getClient = (): GoogleGenAI => {
-  if (!aiClient) {
-    aiClient = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
-  return aiClient;
-};
-
-const generateChatResponse = async (
-  userMessage: string,
-  history: { role: 'user' | 'model'; text: string }[]
-): Promise<string> => {
-  try {
-    const ai = getClient();
-    const conversationContext = history.map(h => `${h.role === 'user' ? 'User' : 'AlexAI'}: ${h.text}`).join('\n');
-    const fullPrompt = `
-      Recent Conversation:
-      ${conversationContext}
-      User: ${userMessage}
-      AlexAI:
-    `;
-
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: fullPrompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-      }
-    });
-
-    return response.text || "Connection interrupted. Try again.";
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "Error connecting to neural net. Please verify API Key.";
-  }
-};
 
 // --- COMPONENTS ---
 
+// 粒子背景组件：使用 HTML5 Canvas 实现交互式粒子动画效果
 const ParticleBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -150,6 +96,7 @@ const ParticleBackground: React.FC = () => {
     let animationFrameId: number;
     let particles: any[] = [];
     
+    // 鼠标交互位置初始化
     const mouse = { x: -1000, y: -1000, radius: 150 };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -159,6 +106,7 @@ const ParticleBackground: React.FC = () => {
     
     window.addEventListener('mousemove', handleMouseMove);
 
+    // 处理窗口大小调整
     const handleResize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -169,6 +117,7 @@ const ParticleBackground: React.FC = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    // 粒子类定义
     class Particle {
       x: number;
       y: number;
@@ -188,12 +137,15 @@ const ParticleBackground: React.FC = () => {
         this.color = 'rgba(100, 116, 139, 0.6)'; 
       }
 
+      // 更新粒子位置和鼠标交互逻辑
       update() {
         this.x += this.vx;
         this.y += this.vy;
+        // 边界反弹
         if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
 
+        // 鼠标排斥效果
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -220,6 +172,7 @@ const ParticleBackground: React.FC = () => {
       }
     }
 
+    // 初始化粒子数组
     const initParticles = () => {
       particles = [];
       const numberOfParticles = (canvas.width * canvas.height) / 9000;
@@ -228,6 +181,7 @@ const ParticleBackground: React.FC = () => {
       }
     };
 
+    // 动画循环
     const animate = () => {
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -235,6 +189,7 @@ const ParticleBackground: React.FC = () => {
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();
+        // 绘制粒子间的连线
         for (let j = i; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
@@ -266,10 +221,12 @@ const ParticleBackground: React.FC = () => {
   return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full pointer-events-none z-0" />;
 };
 
+// 导航栏组件：包含响应式菜单和滚动效果
 const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // 监听滚动事件以改变导航栏样式
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
@@ -280,9 +237,7 @@ const NavBar: React.FC = () => {
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'glass-panel py-3 shadow-sm' : 'bg-transparent py-5'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <div className="flex-shrink-0 flex items-center gap-2 text-slate-700 font-bold text-xl">
-            <Code className="text-slate-500" /> alex.dev
-          </div>
+          {/* 桌面端导航链接 */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {NAV_LINKS.map((link) => (
@@ -292,6 +247,7 @@ const NavBar: React.FC = () => {
               ))}
             </div>
           </div>
+          {/* 移动端菜单按钮 */}
           <div className="-mr-2 flex md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 focus:outline-none">
               {isOpen ? <X /> : <Menu />}
@@ -299,6 +255,7 @@ const NavBar: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* 移动端下拉菜单 */}
       {isOpen && (
         <div className="md:hidden glass-panel border-t border-slate-200 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -314,11 +271,13 @@ const NavBar: React.FC = () => {
   );
 };
 
+// 个人简介主页组件：展示头像和简短介绍
 const ProfileHero: React.FC = () => {
   return (
     <div id="hero" className="min-h-screen flex items-center justify-center relative pt-20 pb-10">
       <div className="max-w-5xl w-full px-4 z-10">
         <div className="glass-panel p-8 md:p-12 rounded-3xl flex flex-col md:flex-row items-center gap-10 md:gap-16 shadow-2xl shadow-slate-200/50 border border-white/60">
+          {/* 头像区域 */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full blur opacity-50 group-hover:opacity-75 transition duration-500"></div>
             <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-inner bg-slate-100">
@@ -328,26 +287,27 @@ const ProfileHero: React.FC = () => {
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </div>
+          {/* 文本介绍区域 */}
           <div className="flex-1 text-center md:text-left space-y-6">
             <div>
               <h2 className="text-sm font-bold tracking-widest text-slate-500 uppercase mb-2">Computer Science Graduate</h2>
               <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-4 tracking-tight">
-                Hi, I'm <span className="morandi-gradient-text">Alex</span>.
+                Hi, I'm <span className="text-[#7d8c8c]">Bono.</span>
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed max-w-lg mx-auto md:mx-0">
-                Exploring the synergy between <span className="font-semibold text-slate-700">Distributed Systems</span> and <span className="font-semibold text-slate-700">Artificial Intelligence</span>. Building scalable solutions for the future.
+                Exploring the synergy between <span className="font-semibold text-slate-700">AI-empowered Communication</span> and <span className="font-semibold text-slate-700">Satellite systems</span>. Building scalable solutions for the future.
               </p>
             </div>
             <div className="flex flex-col gap-3 text-slate-500 text-sm font-medium">
-              <div className="flex items-center justify-center md:justify-start gap-2"><GraduationCap size={18} /><span>M.S. in Computer Science @ University of Tech</span></div>
-              <div className="flex items-center justify-center md:justify-start gap-2"><MapPin size={18} /><span>San Francisco, CA</span></div>
-              <div className="flex items-center justify-center md:justify-start gap-2"><Mail size={18} /><span>alex@example.com</span></div>
+              <div className="flex items-center justify-center md:justify-start gap-2"><GraduationCap size={18} /><span>ShanghaiTech University</span></div>
+              <div className="flex items-center justify-center md:justify-start gap-2"><MapPin size={18} /><span>Pudong New Area, Shanghai</span></div>
+              <div className="flex items-center justify-center md:justify-start gap-2"><Mail size={18} /><span>zhujl2024@shanghaitech.edu.cn</span></div>
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
-              <a href="#contact" className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full font-medium transition-all shadow-lg shadow-slate-800/20 flex items-center gap-2">Contact Me <ChevronRight size={16} /></a>
+              <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full font-medium transition-all shadow-lg shadow-slate-800/20 flex items-center gap-2">Contact Me <ChevronRight size={16} /></a>
               <a href="#" className="px-6 py-3 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-full font-medium transition-all shadow-sm hover:shadow flex items-center gap-2"><Download size={16} /> Resume</a>
               <div className="flex gap-2 ml-2">
-                <a href="#" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Github size={20} /></a>
+                <a href="https://github.com/Renalssance" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Github size={20} /></a>
                 <a href="#" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Linkedin size={20} /></a>
               </div>
             </div>
@@ -358,6 +318,7 @@ const ProfileHero: React.FC = () => {
   );
 };
 
+// 技能图表组件：使用 Recharts 展示雷达图
 const SkillsChart: React.FC = () => {
   return (
     <div className="h-[400px] w-full">
@@ -376,78 +337,10 @@ const SkillsChart: React.FC = () => {
   );
 };
 
-const AIChat: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: "Hi! I'm Alex's AI Assistant. Ask me anything about his skills or projects.", timestamp: new Date() }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  useEffect(() => scrollToBottom(), [messages, isOpen]);
-
-  const handleSend = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-    const userMsg: ChatMessage = { role: 'user', text: inputValue, timestamp: new Date() };
-    setMessages(prev => [...prev, userMsg]);
-    setInputValue('');
-    setIsLoading(true);
-    const responseText = await generateChatResponse(userMsg.text, messages);
-    const aiMsg: ChatMessage = { role: 'model', text: responseText, timestamp: new Date() };
-    setMessages(prev => [...prev, aiMsg]);
-    setIsLoading(false);
-  };
-
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-      {isOpen && (
-        <div className="glass-panel mb-4 w-[320px] md:w-[380px] h-[500px] rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-slate-300/50 border border-white animate-[fadeIn_0.2s_ease-out] bg-white/80">
-          <div className="bg-slate-100/80 p-4 border-b border-slate-200 flex justify-between items-center backdrop-blur-sm">
-            <div className="flex items-center gap-2"><Sparkles className="text-[#7d8c8c] w-5 h-5" /><h3 className="font-bold text-slate-700 text-sm">Assistant.ai</h3></div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-700 transition-colors"><X size={18} /></button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white/40">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm border border-white ${msg.role === 'model' ? 'bg-[#e0e7e9] text-[#64748b]' : 'bg-[#64748b] text-white'}`}>
-                  {msg.role === 'model' ? <Bot size={16} /> : <User size={16} />}
-                </div>
-                <div className={`p-3 rounded-2xl text-sm max-w-[75%] shadow-sm ${msg.role === 'user' ? 'bg-[#64748b] text-white rounded-tr-none' : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'}`}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#e0e7e9] text-[#64748b] flex items-center justify-center flex-shrink-0 border border-white shadow-sm"><Bot size={16} /></div>
-                <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <form onSubmit={handleSend} className="p-3 bg-white/80 border-t border-slate-200 flex gap-2 backdrop-blur-md">
-            <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Ask about my experience..." className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-[#7d8c8c] focus:bg-white transition-all placeholder-slate-400" />
-            <button type="submit" disabled={isLoading || !inputValue.trim()} className="p-2 bg-[#64748b] hover:bg-[#475569] disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl transition-colors shadow-md"><Send size={18} /></button>
-          </form>
-        </div>
-      )}
-      <button onClick={() => setIsOpen(!isOpen)} className={`group p-4 rounded-full shadow-xl transition-all duration-300 border border-white/20 ${isOpen ? 'bg-slate-700 rotate-90 text-white' : 'bg-[#64748b] hover:bg-[#475569] hover:scale-110 text-white'}`}>
-        {isOpen ? <X /> : <MessageSquare className="animate-pulse" />}
-        {!isOpen && <span className="absolute right-16 top-1/2 -translate-y-1/2 bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">Ask AI Assistant</span>}
-      </button>
-    </div>
-  );
-};
 
 // --- MAIN APP ---
 
+// 主应用组件：组合所有部分
 const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-slate-700 font-sans">
@@ -457,6 +350,7 @@ const App: React.FC = () => {
       <main className="relative z-10">
         <ProfileHero />
 
+        {/* 关于我部分 */}
         <section id="about" className="py-24 px-4 relative overflow-hidden">
           <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
             <div>
@@ -483,6 +377,7 @@ const App: React.FC = () => {
           </div>
         </section>
 
+        {/* 项目展示部分 */}
         <section id="projects" className="py-24 px-4 bg-slate-50/50 border-y border-slate-200/60">
           <div className="max-w-7xl mx-auto">
              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3"><span className="text-[#7d8c8c]">02.</span> Selected Works</h2>
@@ -512,21 +407,21 @@ const App: React.FC = () => {
           </div>
         </section>
 
+        {/* 联系方式部分 */}
         <section id="contact" className="py-32 px-4 text-center">
            <div className="max-w-2xl mx-auto">
              <p className="text-[#7d8c8c] font-bold tracking-widest uppercase mb-4">03. What's Next?</p>
              <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">Get In Touch</h2>
              <p className="text-slate-500 mb-10 text-lg leading-relaxed">I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
-             <a href="mailto:alex@example.com" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300"><Mail size={18} /> Say Hello</a>
+             <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300"><Mail size={18} /> Say Hello</a>
              <div className="mt-16 flex justify-center gap-8 text-slate-400">
-               <a href="#" className="hover:text-slate-700 hover:scale-110 transition-all"><Github size={28} /></a>
+               <a href="https://github.com/Renalssance" className="hover:text-slate-700 hover:scale-110 transition-all"><Github size={28} /></a>
                <a href="#" className="hover:text-slate-700 hover:scale-110 transition-all"><Linkedin size={28} /></a>
              </div>
            </div>
         </section>
       </main>
       <footer className="py-8 text-center text-slate-400 text-sm"><p>© 2025 Bono.</p></footer>
-      <AIChat />
     </div>
   );
 };

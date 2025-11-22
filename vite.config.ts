@@ -3,14 +3,15 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // 加载环境变量
   const env = loadEnv(mode, '.', '');
   return {
     plugins: [react()],
-    // Base path is essential for GitHub Pages (usually /repo-name/)
-    // Setting it to './' allows it to work in any subdirectory.
+    // 基础路径配置，对于 GitHub Pages 部署至关重要
+    // 设置为 './' 允许在任何子目录中工作
     base: './',
     define: {
-      // Polyfill process.env.API_KEY so it works in the browser
+      // 注入 process.env.API_KEY 环境变量，使其在浏览器端可用
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
     },
     build: {
