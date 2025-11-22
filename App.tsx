@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Github, Linkedin, Mail, ExternalLink, Cpu, Server, Database, 
-  Menu, X, MapPin, GraduationCap, Download, ChevronRight
+  Github, Linkedin, Mail, ExternalLink, Menu, X, MapPin, GraduationCap, 
+  Download, ChevronRight,Briefcase, Calendar, ChevronDown
 } from 'lucide-react';
 import {
   RadarChart, PolarGrid, PolarAngleAxis, 
@@ -28,13 +28,21 @@ interface SkillData {
   fullMark: number;
 }
 
+interface ExperienceItem {
+  id: number;
+  role: string;
+  company: string;
+  period: string;
+  description: string;
+  type: 'education' | 'work';
+}
 // --- CONSTANTS ---
 // 导航栏链接配置
 const NAV_LINKS = [
-  { label: 'Home', href: '#hero' },
-  { label: 'About', href: '#about' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: 'hero' },
+  { label: 'About', href: 'about' },
+  { label: 'Projects', href: 'projects' },
+  { label: 'Contact', href: 'contact' },
 ];
 
 // 用户头像 URL
@@ -48,6 +56,33 @@ const SKILLS_DATA: SkillData[] = [
   { subject: 'AI/LLMs', A: 80, fullMark: 100 },
   { subject: 'DevOps', A: 70, fullMark: 100 },
   { subject: 'System Design', A: 75, fullMark: 100 },
+];
+
+const EXPERIENCES: ExperienceItem[] = [
+  {
+    id: 1,
+    role: "Master's in Computer Science",
+    company: "University of Technology",
+    period: "2023 - Present",
+    description: "Specializing in Distributed Systems and AI. GPA: 3.9/4.0. Researching adaptive caching algorithms for LLM inference.",
+    type: "education"
+  },
+  {
+    id: 2,
+    role: "Backend Engineer Intern",
+    company: "TechCorp Inc.",
+    period: "Summer 2024",
+    description: "Optimized API latency by 40% using Go and Redis. Implemented a microservices architecture for the payment gateway.",
+    type: "work"
+  },
+  {
+    id: 3,
+    role: "B.S. in Computer Engineering",
+    company: "State University",
+    period: "2019 - 2023",
+    description: "Graduated Magna Cum Laude. Capstone project: Autonomous Drone Navigation System.",
+    type: "education"
+  }
 ];
 
 // 项目展示列表数据
@@ -224,29 +259,54 @@ const ParticleBackground: React.FC = () => {
 const NavBar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   // 监听滚动事件以改变导航栏样式
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      
+      const totalScroll = document.documentElement.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scroll = `${totalScroll / windowHeight}`;
+      setScrollProgress(Number(scroll));
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
+  const scrollTo = (id: string) => {
+    setIsOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'glass-panel py-3 shadow-sm' : 'bg-transparent py-5'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* 桌面端导航链接 */}
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'glass-panel shadow-sm' : 'bg-transparent py-5'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'py-3' : 'py-0'}`}>
+          <div 
+            onClick={() => scrollTo('hero')}
+            className="flex-shrink-0 flex items-center gap-2 text-slate-700 font-bold text-xl cursor-pointer"
+          >
+            <span role="img" aria-label="rainbow" title="Rainbow" className="text-2xl">🌈</span>
+          </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {NAV_LINKS.map((link) => (
-                <a key={link.label} href={link.href} className="text-slate-500 hover:text-slate-800 hover:bg-slate-100/50 px-3 py-2 rounded-full text-sm font-medium transition-all">
+                <button 
+                  key={link.label} 
+                  onClick={() => scrollTo(link.href)} 
+                  className="text-slate-500 hover:text-[#7d8c8c] hover:bg-slate-100/50 px-3 py-2 rounded-full text-sm font-medium transition-all"
+                >
                   {link.label}
-                </a>
+                </button>
               ))}
             </div>
           </div>
-          {/* 移动端菜单按钮 */}
           <div className="-mr-2 flex md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 focus:outline-none">
               {isOpen ? <X /> : <Menu />}
@@ -254,14 +314,26 @@ const NavBar: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* 移动端下拉菜单 */}
+      
+      {/* Scroll Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-slate-200/50">
+        <div 
+          className="h-full bg-[#7d8c8c] transition-all duration-150 ease-out"
+          style={{ width: `${scrollProgress * 100}%` }}
+        />
+      </div>
+
       {isOpen && (
         <div className="md:hidden glass-panel border-t border-slate-200 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {NAV_LINKS.map((link) => (
-              <a key={link.label} href={link.href} onClick={() => setIsOpen(false)} className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 block px-3 py-2 rounded-md text-base font-medium">
+              <button 
+                key={link.label} 
+                onClick={() => scrollTo(link.href)} 
+                className="text-slate-600 hover:text-slate-900 hover:bg-slate-50 block w-full text-left px-3 py-2 rounded-md text-base font-medium"
+              >
                 {link.label}
-              </a>
+              </button>
             ))}
           </div>
         </div>
@@ -270,12 +342,87 @@ const NavBar: React.FC = () => {
   );
 };
 
+// 3. Typewriter Component
+const TypewriterText: React.FC<{ texts: string[] }> = ({ texts }) => {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const fullText = texts[currentTextIndex];
+      
+      if (isDeleting) {
+        setCurrentText(fullText.substring(0, currentText.length - 1));
+      } else {
+        setCurrentText(fullText.substring(0, currentText.length + 1));
+      }
+
+      if (!isDeleting && currentText === fullText) {
+        setTimeout(() => setIsDeleting(true), 1500);
+      } else if (isDeleting && currentText === '') {
+        setIsDeleting(false);
+        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+      }
+    }, isDeleting ? 50 : 100);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentTextIndex, texts]);
+
+  return <span className="text-[#7d8c8c] font-semibold typing-cursor">{currentText}</span>;
+};
+
+// 4. Animated Counter Component
+const AnimatedCounter: React.FC<{ end: number; label: string; suffix?: string }> = ({ end, label, suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          let start = 0;
+          const duration = 2000;
+          const increment = end / (duration / 16);
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end, hasAnimated]);
+
+  return (
+    <div ref={ref} className="text-center p-6 glass-panel rounded-2xl">
+      <div className="text-4xl font-bold text-slate-700 mb-2">
+        {count}{suffix}
+      </div>
+      <div className="text-sm text-slate-500 uppercase tracking-wider font-semibold">{label}</div>
+    </div>
+  );
+};
+
 // 个人简介主页组件：展示头像和简短介绍
 const ProfileHero: React.FC = () => {
+  const scrollToAbout = () => {
+    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+  };
   return (
     <div id="hero" className="min-h-screen flex items-center justify-center relative pt-20 pb-10">
-      <div className="max-w-5xl w-full px-4 z-10">
-        <div className="glass-panel p-8 md:p-12 rounded-3xl flex flex-col md:flex-row items-center gap-10 md:gap-16 shadow-2xl shadow-slate-200/50 border border-white/60">
+      <div className="max-w-5xl w-full px-4 z-10 flex flex-col items-center">
+        <div className="glass-panel p-8 md:p-12 rounded-3xl flex flex-col md:flex-row items-center gap-10 md:gap-16 shadow-2xl shadow-slate-200/50 border border-white/60 animate-float">
           {/* 头像区域 */}
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full blur opacity-50 group-hover:opacity-75 transition duration-500"></div>
@@ -291,14 +438,16 @@ const ProfileHero: React.FC = () => {
                 }}
               />
             </div>
-            <div className="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-green-600" title="Available for work">
+            <div className="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow-lg border border-slate-100 text-green-600">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </div>
           {/* 文本介绍区域 */}
           <div className="flex-1 text-center md:text-left space-y-6">
             <div>
-              <h2 className="text-sm font-bold tracking-widest text-slate-500 uppercase mb-2">Computer Science Graduate</h2>
+              <h2 className="text-sm font-bold tracking-widest text-slate-500 uppercase mb-2">
+                I am a <TypewriterText texts={['Graduate Student', 'Frontend Developer', 'Tech Enthusiast']} />
+                </h2>
               <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-4 tracking-tight">
                 Hi, I'm <span className="text-[#7d8c8c]">Bono.</span>
               </h1>
@@ -321,26 +470,83 @@ const ProfileHero: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <button 
+          onClick={scrollToAbout}
+          className="mt-12 text-slate-400 hover:text-slate-600 transition-colors animate-bounce"
+        >
+          <ChevronDown size={32} />
+        </button>
       </div>
     </div>
   );
 };
 
-// 技能图表组件：使用 Recharts 展示雷达图
-const SkillsChart: React.FC = () => {
+// 6. Experience Timeline Component
+const ExperienceTimeline: React.FC = () => {
   return (
-    <div className="h-[400px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DATA}>
-          <PolarGrid stroke="#94a3b8" />
-          <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600 }} />
-          <RechartsRadar name="Skill Level" dataKey="A" stroke="#6b7280" strokeWidth={2} fill="#7d8c8c" fillOpacity={0.5} />
-          <RechartsTooltip 
-            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: '#e2e8f0', color: '#334155', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-            itemStyle={{ color: '#64748b' }}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
+    <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+      {EXPERIENCES.map((exp) => (
+        <div key={exp.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+          {/* Icon Marker */}
+          <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-50 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 group-hover:scale-110 group-hover:bg-[#7d8c8c] group-hover:text-white transition-all duration-300">
+            {exp.type === 'education' ? <GraduationCap size={18} /> : <Briefcase size={18} />}
+          </div>
+          
+          {/* Card */}
+          <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-6 rounded-xl border border-white shadow-sm group-hover:shadow-md transition-all duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+              <h3 className="font-bold text-slate-800 text-lg">{exp.role}</h3>
+              <time className="text-xs font-semibold text-[#7d8c8c] flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
+                <Calendar size={12} /> {exp.period}
+              </time>
+            </div>
+            <div className="text-sm font-medium text-slate-600 mb-2">{exp.company}</div>
+            <p className="text-slate-500 text-sm leading-relaxed">{exp.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// 技能图表组件：使用 Recharts 展示雷达图
+const StatsAndSkills: React.FC = () => {
+  return (
+    <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+          About me
+        </h2>
+        <div className="space-y-6 text-lg text-slate-600 leading-relaxed mb-10">
+          <p>I specialize in building robust backend systems and intuitive frontend interfaces. My academic background has provided a strong foundation in algorithms, while my projects demonstrate practical application.</p>
+        </div>
+        
+        {/* Animated Counters */}
+        <div className="grid grid-cols-2 gap-4">
+           <AnimatedCounter end={12} label="Projects" />
+           <AnimatedCounter end={3500} label="Commits" suffix="+" />
+           <AnimatedCounter end={3} label="Years Exp." />
+           <AnimatedCounter end={98} label="Coffee Cups" />
+        </div>
+      </div>
+      
+      <div id="skills" className="glass-panel p-8 rounded-3xl border border-white shadow-xl relative bg-white/40">
+        <div className="absolute -top-4 -right-4 bg-[#7d8c8c] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg tracking-wide">TECHNICAL RADAR</div>
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={SKILLS_DATA}>
+              <PolarGrid stroke="#94a3b8" />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 600 }} />
+              <RechartsRadar name="Skill Level" dataKey="A" stroke="#6b7280" strokeWidth={2} fill="#7d8c8c" fillOpacity={0.5} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: '#e2e8f0', color: '#334155', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                itemStyle={{ color: '#64748b' }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 };
@@ -355,34 +561,19 @@ const App: React.FC = () => {
       <ParticleBackground />
       <NavBar />
       
-      <main className="relative z-10">
+      <main className="relative z-10 space-y-32 pb-32">
         <ProfileHero />
 
         {/* 关于我部分 */}
-        <section id="about" className="py-24 px-4 relative overflow-hidden">
-          <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6 flex items-center gap-3">
-                About Me
-              </h2>
-              <div className="space-y-4 text-lg text-slate-600 leading-relaxed">
-                <p>I am a Computer Science graduate student passionate about building scalable distributed systems and intelligent user interfaces.</p>
-                <p>My research focuses on the intersection of <span className="font-semibold text-[#64748b]">High Performance Computing</span> and <span className="font-semibold text-[#64748b]">Generative AI</span>. I enjoy decoding complex problems and turning them into efficient, elegant code.</p>
-              </div>
-              <div className="mt-10 grid grid-cols-3 gap-4">
-                {[{ icon: Cpu, label: "Architecture" }, { icon: Server, label: "Backend" }, { icon: Database, label: "Data Eng" }].map((item, i) => (
-                   <div key={i} className="p-4 rounded-xl border border-slate-200 bg-white/50 shadow-sm flex flex-col items-center gap-3 hover:border-slate-300 transition-colors">
-                     <item.icon className="text-[#7d8c8c]" size={24} />
-                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{item.label}</span>
-                   </div>
-                ))}
-              </div>
-            </div>
-            <div id="skills" className="glass-panel p-8 rounded-3xl border border-white shadow-xl relative bg-white/40">
-               <div className="absolute -top-4 -right-4 bg-[#7d8c8c] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg tracking-wide">SKILLS RADAR</div>
-               <SkillsChart />
-            </div>
-          </div>
+        <section id="about" className="py-32 px-4 bg-slate-50/50 border-y border-slate-200/60">
+          <StatsAndSkills />
+        </section>
+
+        <section className="px-4 max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 text-center">
+            Experience Timeline
+          </h2>
+          <ExperienceTimeline />
         </section>
 
         {/* 项目展示部分 */}
@@ -391,12 +582,12 @@ const App: React.FC = () => {
              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3">Selected Works</h2>
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {PROJECTS.map((project) => (
-                  <div key={project.id} className="group relative rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50">
-                    <div className="aspect-video overflow-hidden bg-slate-100 relative">
+                  <div key={project.id} className="group relative rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 flex flex-col h-full">
+                    <div className="aspect-video overflow-hidden bg-slate-100 relative shrink-0">
                       <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                       <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-xl font-bold text-slate-800 group-hover:text-[#64748b] transition-colors">{project.title}</h3>
                         <div className="flex gap-3">
@@ -404,8 +595,8 @@ const App: React.FC = () => {
                           {project.link && <a href={project.link} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-700 transition-colors"><ExternalLink size={20} /></a>}
                         </div>
                       </div>
-                      <p className="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed">{project.description}</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p className="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-1">{project.description}</p>
+                      <div className="flex flex-wrap gap-2 mt-auto">
                         {project.tags.map(tag => <span key={tag} className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">{tag}</span>)}
                       </div>
                     </div>
@@ -416,12 +607,13 @@ const App: React.FC = () => {
         </section>
 
         {/* 联系方式部分 */}
-        <section id="contact" className="py-32 px-4 text-center">
-           <div className="max-w-2xl mx-auto">
-             <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">Get In Touch</h2>
+        <section id="contact" className="px-4 text-center">
+           <div className="max-w-2xl mx-auto glass-panel p-10 rounded-3xl border border-white shadow-lg">
+             <p className="text-[#7d8c8c] font-bold tracking-widest uppercase mb-4">04. What's Next?</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">Get In Touch</h2>
              <p className="text-slate-500 mb-10 text-lg leading-relaxed">I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
-             <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300"><Mail size={18} /> Say Hello</a>
-             <div className="mt-16 flex justify-center gap-8 text-slate-400">
+             <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300 transform hover:scale-105"><Mail size={18} /> Say Hello</a>
+             <div className="mt-12 flex justify-center gap-8 text-slate-400">
                <a href="https://github.com/Renalssance" className="hover:text-slate-700 hover:scale-110 transition-all"><Github size={28} /></a>
                <a href="#" className="hover:text-slate-700 hover:scale-110 transition-all"><Linkedin size={28} /></a>
              </div>
