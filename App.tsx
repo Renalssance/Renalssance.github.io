@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Github, Linkedin, Mail, ExternalLink, Menu, X, MapPin, GraduationCap, 
+  Github, Mail, ExternalLink, Menu, X, MapPin, GraduationCap, 
   Download, ChevronRight,Briefcase, Calendar, ChevronDown
 } from 'lucide-react';
 import {
@@ -17,6 +17,18 @@ interface Project {
   tags: string[];
   link?: string;
   github?: string;
+  imageUrl: string;
+}
+
+interface Publication {
+  id: string;
+  title: string;
+  authors: string;
+  venue: string;
+  description: string;
+  tags: string[];
+  link: string;
+  doi: string;
   imageUrl: string;
 }
 
@@ -50,53 +62,64 @@ interface ExperienceItem {
   company: string;
   period: string;
   description: string;
-  type: 'education' | 'work';
+  type: 'education' | 'work' | 'research';
 }
 // --- CONSTANTS ---
 // 导航栏链接配置
 const NAV_LINKS = [
   { label: 'Home', href: 'hero' },
   { label: 'About', href: 'about' },
+  { label: 'Research', href: 'experience' },
   { label: 'Projects', href: 'projects' },
+  { label: 'Papers', href: 'papers' },
   { label: 'Contact', href: 'contact' },
 ];
 
 // 用户头像 URL
 const AVATAR_URL = "/Labubu.JPG";
+const CONTACT_EMAIL = 'grandZJL@outlook.com';
 
 // 技能雷达图数据配置
 const SKILLS_DATA: SkillData[] = [
-  { subject: 'Algorithms', A: 95, fullMark: 100 },
-  { subject: 'Frontend', A: 90, fullMark: 100 },
-  { subject: 'Backend', A: 85, fullMark: 100 },
-  { subject: 'AI/LLMs', A: 80, fullMark: 100 },
-  { subject: 'DevOps', A: 70, fullMark: 100 },
-  { subject: 'System Design', A: 75, fullMark: 100 },
+  { subject: 'Deep Learning', A: 90, fullMark: 100 },
+  { subject: 'Wireless Comms', A: 88, fullMark: 100 },
+  { subject: 'Agent Systems', A: 86, fullMark: 100 },
+  { subject: 'Multimodal AI', A: 84, fullMark: 100 },
+  { subject: 'Backend APIs', A: 80, fullMark: 100 },
+  { subject: 'Frontend', A: 74, fullMark: 100 },
 ];
 
 const EXPERIENCES: ExperienceItem[] = [
   {
     id: 1,
-    role: "Master's in Computer Science",
-    company: "University of Technology",
-    period: "2023 - Present",
-    description: "Specializing in Distributed Systems and AI. GPA: 3.9/4.0. Researching adaptive caching algorithms for LLM inference.",
+    role: "M.S. in Information and Communication Engineering",
+    company: "ShanghaiTech University",
+    period: "2024.09 - 2027.06",
+    description: "My research interest lies in the task-oriented communication and satellite edge inference empowered by deep learning.",
     type: "education"
   },
+  // {
+  //   id: 2,
+  //   role: "First Author, WCSP Conference Paper",
+  //   company: "Fisher-Robust Information Bottleneck for Task-Oriented Communication with Noisy Data",
+  //   period: "2024.10",
+  //   description: "Proposed a Fisher-Robust Information Bottleneck framework for device-edge collaborative inference under noisy inputs and channel interference.",
+  //   type: "research"
+  // },
+  // {
+  //   id: 3,
+  //   role: "First Author, TWC Journal Paper",
+  //   company: "Robust Information Bottleneck for Satellite Edge Inference over MIMO Channel",
+  //   period: "Major Revision",
+  //   description: "Built a Source-Channel Robust Information Bottleneck framework for LEO satellite-ground collaborative inference over fading MIMO channels.",
+  //   type: "research"
+  // },
   {
     id: 2,
-    role: "Backend Engineer Intern",
-    company: "TechCorp Inc.",
-    period: "Summer 2024",
-    description: "Optimized API latency by 40% using Go and Redis. Implemented a microservices architecture for the payment gateway.",
-    type: "work"
-  },
-  {
-    id: 3,
-    role: "B.S. in Computer Engineering",
-    company: "State University",
-    period: "2019 - 2023",
-    description: "Graduated Magna Cum Laude. Capstone project: Autonomous Drone Navigation System.",
+    role: "B.E. in Communication Engineering",
+    company: "Southwest Jiaotong University",
+    period: "2020.09 - 2024.06",
+    description: "Core courses include Communication Principles, Computer Networks, and Digital Signal Processing.",
     type: "education"
   }
 ];
@@ -105,27 +128,32 @@ const EXPERIENCES: ExperienceItem[] = [
 const PROJECTS: Project[] = [
   {
     id: '1',
-    title: 'Project 1',
-    description: 'Waiting for description.',
-    tags: ['React', 'TypeScript', 'WebGL', 'D3.js'],
-    github: 'https://github.com',
-    imageUrl: 'https://picsum.photos/600/400?random=1'
+    title: 'Multi-Agent Travel Planning Assistant',
+    description: 'A FastAPI, LangGraph, LangChain Agent, and Vue 3 travel planning system. It streams real LangGraph node progress, calls AMap MCP tools, retrieves built-in travel knowledge, generates structured itineraries, and improves plan quality through an evaluator-reviser loop.',
+    tags: ['Python', 'LangGraph', 'LangChain', 'MCP', 'RAG', 'FastAPI', 'Vue3'],
+    github: 'https://github.com/Renalssance/LangGraph-trip-planner',
+    imageUrl: '/trip_agent.png'
   },
+  // {
+  //   id: '2',
+  //   title: 'Remote-Sensing Disaster Multimodal LLM System',
+  //   description: 'A multi-stage training and inference prototype for satellite disaster analysis, covering cloud detection, de-clouding, visual token learning, downstream reasoning, and report generation.',
+  //   tags: ['Python', 'PyTorch', 'Transformers', 'ViT/VAE', 'LoRA', 'FastAPI'],
+  //   imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80'
+  // }
+];
+
+const PUBLICATIONS: Publication[] = [
   {
-    id: '2',
-    title: 'Project 2',
-    description: 'Waiting for description.',
-    tags: ['Go', 'Distributed Systems', 'Docker'],
-    github: 'https://github.com',
-    imageUrl: 'https://picsum.photos/600/400?random=2'
-  },
-  {
-    id: '3',
-    title: 'Project 3',
-    description: 'Waiting for description.',
-    tags: ['Python', 'LangChain', 'Gemini API', 'Next.js'],
-    github: 'https://github.com',
-    imageUrl: 'https://picsum.photos/600/400?random=3'
+    id: 'frib-wcsp-2024',
+    title: 'Fisher-Robust Information Bottleneck for Task-Oriented Communication with Noisy Data',
+    authors: 'Jielin Zhu, Youlong Wu, Dingzhu Wen, Xuan Liu, Liqun Fu, Yuanming Shi',
+    venue: '2024 16th International Conference on Wireless Communications and Signal Processing (WCSP), pp. 78-83',
+    description: 'A WCSP 2024 conference paper on Fisher-robust information bottleneck for task-oriented communication with noisy data, focusing on compact and robust representations for communication-efficient inference.',
+    tags: ['WCSP 2024', 'Task-Oriented Communication', 'Information Bottleneck', 'Noisy Data'],
+    link: 'https://ieeexplore.ieee.org/abstract/document/10827769',
+    doi: '10.1109/WCSP62071.2024.10827769',
+    imageUrl: '/FR-IB.png'
   }
 ];
 
@@ -507,26 +535,26 @@ const ProfileHero: React.FC = () => {
           <div className="flex-1 text-center md:text-left space-y-6">
             <div>
               <h2 className="text-sm font-bold tracking-widest text-slate-500 uppercase mb-2">
-                I am a <TypewriterText texts={['Graduate Student', 'Frontend Developer', 'Tech Enthusiast']} />
+                I am a <TypewriterText texts={['Graduate Student', 'AI Communication Researcher', 'Agentic App Builder']} />
                 </h2>
               <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-4 tracking-tight">
-                Hi, I'm <span className="text-[#7d8c8c]">Bono.</span>
+                Hi, I'm <span className="text-[#7d8c8c]">Zhu Jielin.</span>
               </h1>
               <p className="text-lg text-slate-600 leading-relaxed max-w-lg mx-auto md:mx-0">
-                Exploring the synergy between <span className="font-semibold text-slate-700">AI-empowered Communication</span> and <span className="font-semibold text-slate-700">Satellite systems</span>. Building scalable solutions for the future.
+                I study <span className="font-semibold text-slate-700">AI-empowered communication</span>, <span className="font-semibold text-slate-700">satellite edge inference</span>, and practical agent systems that turn complex information into usable decisions.
               </p>
             </div>
             <div className="flex flex-col gap-3 text-slate-500 text-sm font-medium">
               <div className="flex items-center justify-center md:justify-start gap-2"><GraduationCap size={18} /><span>ShanghaiTech University</span></div>
               <div className="flex items-center justify-center md:justify-start gap-2"><MapPin size={18} /><span>Pudong New Area, Shanghai</span></div>
-              <div className="flex items-center justify-center md:justify-start gap-2"><Mail size={18} /><span>zhujl2024@shanghaitech.edu.cn</span></div>
+              <div className="flex items-center justify-center md:justify-start gap-2"><Mail size={18} /><span>{CONTACT_EMAIL}</span></div>
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
-              <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full font-medium transition-all shadow-lg shadow-slate-800/20 flex items-center gap-2">Contact Me <ChevronRight size={16} /></a>
-              <a href="#" className="px-6 py-3 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-full font-medium transition-all shadow-sm hover:shadow flex items-center gap-2"><Download size={16} /> Resume</a>
+              <a href={`mailto:${CONTACT_EMAIL}`} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full font-medium transition-all shadow-lg shadow-slate-800/20 flex items-center gap-2">Contact Me <ChevronRight size={16} /></a>
+              <a href={`mailto:${CONTACT_EMAIL}?subject=Resume%20Request`} className="px-6 py-3 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 rounded-full font-medium transition-all shadow-sm hover:shadow flex items-center gap-2"><Download size={16} /> Request CV</a>
               <div className="flex gap-2 ml-2">
-                <a href="https://github.com/Renalssance" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Github size={20} /></a>
-                <a href="#" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Linkedin size={20} /></a>
+                <a href="https://github.com/Renalssance" aria-label="GitHub profile" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Github size={20} /></a>
+                <a href={`mailto:${CONTACT_EMAIL}`} aria-label="Email contact" className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"><Mail size={20} /></a>
               </div>
             </div>
           </div>
@@ -594,7 +622,8 @@ const StatsAndSkills: React.FC = () => {
           About me
         </h2>
         <div className="space-y-6 text-lg text-slate-600 leading-relaxed mb-10">
-          <p>I specialize in building robust backend systems and intuitive frontend interfaces. My academic background has provided a strong foundation in algorithms, while my projects demonstrate practical application.</p>
+          <p>I am a recommended master's student in Information and Communication Engineering at ShanghaiTech University. My work sits at the intersection of wireless communication, deep learning, and intelligent systems.</p>
+          <p>Recently, I have been building agentic applications with LangGraph and RAG, while researching robust information bottleneck methods for task-oriented communication and satellite edge inference.</p>
         </div>
         
         {/* Animated Counters with GitHub Data */}
@@ -661,58 +690,103 @@ const App: React.FC = () => {
           <StatsAndSkills />
         </section>
 
-        <section className="px-4 max-w-4xl mx-auto">
+        <section id="experience" className="px-4 max-w-4xl mx-auto scroll-mt-24">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 text-center">
-            Experience Timeline
+            Education & Research
           </h2>
           <ExperienceTimeline />
         </section>
 
         {/* 项目展示部分 */}
-        <section id="projects" className="py-24 px-4 bg-slate-50/50 border-y border-slate-200/60">
-          <div className="max-w-7xl mx-auto">
-             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3">Selected Works</h2>
-             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {PROJECTS.map((project) => (
-                  <div key={project.id} className="group relative rounded-2xl overflow-hidden bg-white border border-slate-200 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-slate-200/50 flex flex-col h-full">
-                    <div className="aspect-video overflow-hidden bg-slate-100 relative shrink-0">
-                      <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
+        <section id="projects" className="px-4 max-w-5xl mx-auto scroll-mt-24">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3">
+            Selected Projects
+          </h2>
+          <div className="space-y-6">
+            {PROJECTS.map((project) => (
+              <article key={project.id} className="glass-panel overflow-hidden rounded-2xl border border-white shadow-sm hover:shadow-lg transition-all duration-300 bg-white/60">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-64 lg:w-72 shrink-0 bg-slate-100 p-3 flex items-center justify-center">
+                    <img src={project.imageUrl} alt={project.title} className="w-full h-48 md:h-64 object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0 p-6 md:p-8">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
+                      <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug">{project.title}</h3>
+                      <div className="flex gap-3 shrink-0">
+                        {project.github && (
+                          <a href={project.github} target="_blank" rel="noreferrer" aria-label={`Open ${project.title} on GitHub`} className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors">
+                            <Github size={20} />
+                          </a>
+                        )}
+                        {project.link && (
+                          <a href={project.link} target="_blank" rel="noreferrer" aria-label={`Open ${project.title}`} className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors">
+                            <ExternalLink size={20} />
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-6 flex flex-col flex-1">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-bold text-slate-800 group-hover:text-[#64748b] transition-colors">{project.title}</h3>
-                        <div className="flex gap-3">
-                          {project.github && <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-700 transition-colors"><Github size={20} /></a>}
-                          {project.link && <a href={project.link} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-700 transition-colors"><ExternalLink size={20} /></a>}
-                        </div>
-                      </div>
-                      <p className="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-1">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mt-auto">
-                        {project.tags.map(tag => <span key={tag} className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">{tag}</span>)}
-                      </div>
+                    <p className="text-slate-500 leading-relaxed mb-5">{project.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map(tag => <span key={tag} className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">{tag}</span>)}
                     </div>
                   </div>
-                ))}
-             </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* 论文展示部分 */}
+        <section id="papers" className="px-4 max-w-5xl mx-auto scroll-mt-24">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-12 flex items-center gap-3">
+            Publications
+          </h2>
+          <div className="space-y-6">
+            {PUBLICATIONS.map((paper) => (
+              <article key={paper.id} className="glass-panel overflow-hidden rounded-2xl border border-white shadow-sm hover:shadow-lg transition-all duration-300 bg-white/60">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-64 lg:w-72 shrink-0 bg-slate-100 p-3 flex items-center justify-center">
+                    <img src={paper.imageUrl} alt={paper.title} className="w-full h-48 md:h-64 object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0 p-6 md:p-8">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
+                      <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug">{paper.title}</h3>
+                      <a href={paper.link} target="_blank" rel="noreferrer" aria-label={`Open ${paper.title}`} className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors shrink-0">
+                        <ExternalLink size={20} />
+                      </a>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-600 mb-2">{paper.authors}</p>
+                    <p className="text-sm text-[#64748b] font-medium mb-4">{paper.venue}</p>
+                    <p className="text-slate-500 leading-relaxed mb-5">{paper.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {paper.tags.map(tag => <span key={tag} className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">{tag}</span>)}
+                    </div>
+                    <a href={`https://doi.org/${paper.doi}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-[#64748b] hover:text-slate-800 inline-flex items-center gap-2">
+                      DOI: {paper.doi}
+                      <ExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 
         {/* 联系方式部分 */}
         <section id="contact" className="px-4 text-center">
            <div className="max-w-2xl mx-auto glass-panel p-10 rounded-3xl border border-white shadow-lg">
-             <p className="text-[#7d8c8c] font-bold tracking-widest uppercase mb-4">04. What's Next?</p>
+             <p className="text-[#7d8c8c] font-bold tracking-widest uppercase mb-4">05. What's Next?</p>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">Get In Touch</h2>
-             <p className="text-slate-500 mb-10 text-lg leading-relaxed">I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
-             <a href="mailto:zhujl2024@shanghaitech.edu.cn" className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300 transform hover:scale-105"><Mail size={18} /> Say Hello</a>
+             <p className="text-slate-500 mb-10 text-lg leading-relaxed">I am open to conversations about AI communication, satellite edge inference, multimodal systems, and agentic applications.</p>
+             <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-2 px-8 py-4 bg-[#64748b] text-white hover:bg-[#475569] rounded-full font-bold transition-all shadow-lg shadow-slate-300 transform hover:scale-105"><Mail size={18} /> Say Hello</a>
              <div className="mt-12 flex justify-center gap-8 text-slate-400">
-               <a href="https://github.com/Renalssance" className="hover:text-slate-700 hover:scale-110 transition-all"><Github size={28} /></a>
-               <a href="#" className="hover:text-slate-700 hover:scale-110 transition-all"><Linkedin size={28} /></a>
+               <a href="https://github.com/Renalssance" aria-label="GitHub profile" className="hover:text-slate-700 hover:scale-110 transition-all"><Github size={28} /></a>
+               <a href={`mailto:${CONTACT_EMAIL}`} aria-label="Email contact" className="hover:text-slate-700 hover:scale-110 transition-all"><Mail size={28} /></a>
              </div>
            </div>
         </section>
       </main>
-      <footer className="py-8 text-center text-slate-400 text-sm"><p>© 2025 Bono.</p></footer>
+      <footer className="py-8 text-center text-slate-400 text-sm"><p>© 2026 Zhu Jielin.</p></footer>
     </div>
   );
 };
