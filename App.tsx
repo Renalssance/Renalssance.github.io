@@ -134,8 +134,16 @@ const PROJECTS: Project[] = [
     github: 'https://github.com/Renalssance/LangGraph-trip-planner',
     imageUrl: '/trip_agent.png'
   },
+  {
+    id: '2',
+    title: 'Homework Grading Codex Skill',
+    description: 'A repo-local Codex skill for grading student homework from local PDF and DOCX files. It extracts submissions, builds structured rubrics and grading JSON, validates results with schemas, renders Markdown reports and final PDFs, and maintains summary and human-review queues.',
+    tags: ['Codex Skill', 'Python', 'PDF/DOCX', 'OCR', 'JSON Schema', 'ReportLab'],
+    github: 'https://github.com/Charlotte001yeeh/TA-HW-skill',
+    imageUrl: 'https://opengraph.githubassets.com/ta-hw-skill/Charlotte001yeeh/TA-HW-skill'
+  },
   // {
-  //   id: '2',
+  //   id: '3',
   //   title: 'Remote-Sensing Disaster Multimodal LLM System',
   //   description: 'A multi-stage training and inference prototype for satellite disaster analysis, covering cloud detection, de-clouding, visual token learning, downstream reasoning, and report generation.',
   //   tags: ['Python', 'PyTorch', 'Transformers', 'ViT/VAE', 'LoRA', 'FastAPI'],
